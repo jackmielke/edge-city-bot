@@ -16,13 +16,13 @@ from constants import assistant_id, vector_store_id
 threads = dict()
 
 async def feedback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    user = update.effective_user
+    username = update.effective_user.name
     message = update.message.text
     timestamp = datetime.now().isoformat()
     with open("./logs/feedback.txt", "a") as file:
-        file.write(f"""user: {user}
+        file.write(f"""user: {username}
             datetime: {timestamp}
-            message: {message}""")
+            message: {message}\n\n""")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 	user = update.effective_user
