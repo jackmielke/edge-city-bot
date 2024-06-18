@@ -1,11 +1,16 @@
 import time
 from datetime import datetime
+import sys
 import os
 from os.path import join
 from dotenv import load_dotenv
 
 if os.path.exists("secrets.env"):
 	load_dotenv("secrets.env")
+
+if "OPENAI_API_KEY" not in os.environ or "TELEGRAM_API_KEY" not in os.environ:
+	print("Missing environment variables")
+	sys.exit(1)
 
 from openai import OpenAI
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -78,8 +83,6 @@ app.add_handler(CommandHandler("feedback", feedback))
 app.add_handler(CommandHandler("getfeedback", get_feedback))
 app.add_handler(MessageHandler(None, handler))
 
-print("Waiting 10 seconds")
-time.sleep(10)
 print("Running")
 
 app.run_polling()
