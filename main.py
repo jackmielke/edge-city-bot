@@ -8,8 +8,14 @@ from dotenv import load_dotenv
 if os.path.exists("secrets.env"):
 	load_dotenv("secrets.env")
 
-if "OPENAI_API_KEY" not in os.environ or "TELEGRAM_API_KEY" not in os.environ:
-	print("Missing environment variables")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+TELEGRAM_API_KEY = os.getenv("TELEGRAM_API_TOKEN")
+
+if OPENAI_API_KEY is None:
+	print("Missing environment variable OPENAI_API_KEY")
+	sys.exit(1)
+if TELEGRAM_API_KEY is None:
+	print("Missing environment variable TELEGRAM_API_TOKEN")
 	sys.exit(1)
 
 from openai import OpenAI
