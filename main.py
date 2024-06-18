@@ -1,3 +1,4 @@
+import time
 from datetime import datetime
 import os
 from os.path import join
@@ -65,8 +66,12 @@ app = ApplicationBuilder().token(os.getenv("TELEGRAM_API_TOKEN")).build()
 
 app.add_handler(CommandHandler("start", start))
 app.add_handler(CommandHandler("feedback", feedback))
+# app.add_handler(CommandHandler("get_feedback"))
 app.add_handler(MessageHandler(None, handler))
 
+
+print("Waiting 10 seconds")
+time.sleep(10)
 print("Running")
 
 app.run_polling()
