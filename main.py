@@ -1,12 +1,13 @@
 from datetime import datetime
 import os
 from os.path import join
-from dotenv import dotenv_values
+from dotenv import load_dotenv
 
-config = dotenv_values("secrets.env")
+if os.path.exists("secrets.env"):
+	load_dotenv("secrets.env")
 
 from openai import OpenAI
-client = OpenAI(api_key=config["OPENAI_API_KEY"])
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes
@@ -20,15 +21,14 @@ async def feedback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     message = update.message.text
     timestamp = datetime.now().isoformat()
     with open("./logs/feedback.txt", "a") as file:
-        file.write(f"""user: {username}
-            datetime: {timestamp}
-            message: {message}\n\n""")
+        file.write(f"user: {username}\ndatetime: {timestamp}\nmessage: {message}\n\n")
+    await update.message.reply_text("Thanks for your feedback! I've shared it with the developers.")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 	user = update.effective_user
 	if user.id in threads:
 		del threads[user.id]
-	START_MESSAGE = f"Hello there, {user.first_name}! I am the Edge Esmeralda Bot. I can tell you all about Edge Esmeralda, a pop-up village happening June 2024. Ask me anything!"
+	START_MESSAGE = f"Hello there, {user.first_name}! I am the Edge Esmeralda Bot. I can tell you all about Edge Esmeralda, a pop-up village happening June 2024. Ask me anything!\n\nIf you want to restart me, just say '/start'. And if you want to give me feedback, start your message with '/feedback'."
 	await update.message.reply_text(START_MESSAGE)
 
 async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -55,14 +55,13 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 			thread_id=thread.id
 		)
 		last_message = messages.data[0]
-		print(last_message)
 		response_text = last_message.content[0].text.value
 	else:
 		print("run not completed:", run.status)
 	print(f"Responding to {user.first_name}: {response_text}")
 	await update.message.reply_text(response_text)
 
-app = ApplicationBuilder().token(config["TELEGRAM_API_TOKEN"]).build()
+app = ApplicationBuilder().token(os.getenv("TELEGRAM_API_TOKEN")).build()
 
 app.add_handler(CommandHandler("start", start))
 app.add_handler(CommandHandler("feedback", feedback))
