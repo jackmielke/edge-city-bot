@@ -32,7 +32,7 @@ async def feedback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     username = update.effective_user.name
     message = update.message.text
     timestamp = datetime.now().isoformat()
-    with open("./logs/feedback.txt", "a") as file:
+    with open("feedback.txt", "a") as file:
         file.write(f"user: {username}\ndatetime: {timestamp}\nmessage: {message}\n\n")
     await update.message.reply_text("Thanks for your feedback! I've shared it with the developers.")
 
@@ -48,7 +48,7 @@ async def get_feedback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     print(f"got command `/getfeedback` from username {username}")
     if username not in dev_telegram_usernames:
         return
-    with open("./logs/feedback.txt", "r") as file:
+    with open("feedback.txt", "r") as file:
         all_feedback = file.read()
     await update.message.reply_text(all_feedback)
 
