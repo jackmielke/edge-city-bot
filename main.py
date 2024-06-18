@@ -13,7 +13,7 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes
 
-from constants import assistant_id, vector_store_id
+from constants import assistant_id, vector_store_id, dev_telegram_usernames
 
 threads = dict()
 
@@ -31,6 +31,15 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 		del threads[user.id]
 	START_MESSAGE = f"Hello there, {user.first_name}! I am the Edge Esmeralda Bot. I can tell you all about Edge Esmeralda, a pop-up village happening June 2024. Ask me anything!\n\nIf you want to restart me, just say '/start'. And if you want to give me feedback, start your message with '/feedback'."
 	await update.message.reply_text(START_MESSAGE)
+
+async def get_feedback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    username = update.effective_user.username
+    print(f"got command `/getfeedback` from username {username}")
+    if username not in dev_telegram_usernames:
+        return
+    with open("./logs/feedback.txt", "r") as file:
+        all_feedback = file.read()
+    await update.message.reply_text(all_feedback)
 
 async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 	thread = None
@@ -66,9 +75,8 @@ app = ApplicationBuilder().token(os.getenv("TELEGRAM_API_TOKEN")).build()
 
 app.add_handler(CommandHandler("start", start))
 app.add_handler(CommandHandler("feedback", feedback))
-# app.add_handler(CommandHandler("get_feedback"))
+app.add_handler(CommandHandler("getfeedback", get_feedback))
 app.add_handler(MessageHandler(None, handler))
-
 
 print("Waiting 10 seconds")
 time.sleep(10)
