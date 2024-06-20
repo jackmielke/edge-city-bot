@@ -51,9 +51,7 @@ def get_events(args):
 			try:
 				naive_dt = parser.isoparse(e[key])
 				utc_dt = utc.localize(naive_dt)
-				if isinstance(utc_dt, datetime):
 				e[key] = utc_dt.astimezone(pdt).strftime("%Y-%m-%d %H:%M")
-
 			except ValueError:
 				pass
 			except TypeError:
