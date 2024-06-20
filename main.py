@@ -4,6 +4,12 @@ import sys
 import os
 from os.path import join
 from dotenv import load_dotenv
+from gql import get_events
+import json
+
+def get_instructions():
+	return """You are an assistant that helps attendees of an event called "Edge Esmeralda". The provided files contain general information about Edge Esmeralda. If the user requests specific or up-to-date information about events, use the get_events function. Give concise, conversational answers. Do NOT use markdown.
+	"""
 
 if os.path.exists("secrets.env"):
 	load_dotenv("secrets.env")
@@ -27,6 +33,8 @@ from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, Con
 from constants import assistant_id, vector_store_id, dev_telegram_usernames
 
 threads = dict()
+
+import pytz
 
 async def feedback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     username = update.effective_user.name
@@ -60,10 +68,12 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 	else:
 		thread = client.beta.threads.create()
 		threads[update.effective_user.id] = thread
+	now = datetime.now().strftime("%A %Y-%m-%d %H:%M")
+	message_content = f"{now} | {update.message.text}"
 	message = client.beta.threads.messages.create(
 		thread_id=thread.id,
 		role="user",
-		content=update.message.text
+		content=now + " | " + update.message.text
 	)
 	print(f"New message from {user.first_name}: {update.message.text}")
 	run = client.beta.threads.runs.create_and_poll(
@@ -79,6 +89,42 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 		response_text = last_message.content[0].text.value
 	else:
 		print("run not completed:", run.status)
+
+	if run.status == "requires_action":
+		print("Message requires action")
+		tool_outputs = []
+
+		for tool in run.required_action.submit_tool_outputs.tool_calls:
+			if tool.function.name == "get_events":
+				args = json.loads(tool.function.arguments)
+				result = get_events(args)
+				tool_outputs.append({
+					"tool_call_id": tool.id,
+					"output": str(result)
+				})
+
+		if tool_outputs:
+			try:
+				run = client.beta.threads.runs.submit_tool_outputs_and_poll(
+					thread_id=thread.id,
+					run_id=run.id,
+					tool_outputs=tool_outputs
+				)
+				print("Tool outputs submitted successfully.")
+			except Exception as e:
+				print("Failed to submit tool outputs:", e)
+		else:
+			print("No tool outputs to submit.")
+
+		if run.status == 'completed':
+			messages = client.beta.threads.messages.list(
+				thread_id=thread.id
+			)
+			last_message = messages.data[0]
+			response_text = last_message.content[0].text.value
+		else:
+			print(run.status)
+
 	print(f"Responding to {user.first_name}: {response_text}")
 	await update.message.reply_text(response_text)
 
