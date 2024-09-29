@@ -7,10 +7,6 @@ from dotenv import load_dotenv
 from gql import get_events
 import json
 
-def get_instructions():
-	return """You are an assistant that helps attendees of an event called "Edge Esmeralda". The provided files contain general information about Edge Esmeralda. If the user requests specific or up-to-date information about events, use the get_events function. Give concise, conversational answers. Do NOT use markdown.
-	"""
-
 if os.path.exists("secrets.env"):
 	load_dotenv("secrets.env")
 
@@ -48,7 +44,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 	user = update.effective_user
 	if user.id in threads:
 		del threads[user.id]
-	START_MESSAGE = f"Hello there, {user.first_name}! I am the Edge Esmeralda Bot. I can tell you all about Edge Esmeralda, a pop-up village happening June 2024. Ask me anything!\n\nIf you want to restart me, just say '/start'. And if you want to give me feedback, start your message with '/feedback'."
+	START_MESSAGE = f"Hello there, {user.first_name}! I am the Edge City Lanna Bot. I can tell you all about this pop-up village happening in Chiang Mai from October 10th to November 10th. Ask me anything!\n\nIf you want to restart me, just say '/start'. And if you want to give me feedback, start your message with '/feedback'."
 	await update.message.reply_text(START_MESSAGE)
 
 async def get_feedback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

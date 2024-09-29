@@ -21,7 +21,7 @@ def get_events(args):
 	graphql_query = """query MyQuery  {
 	events (where: {""" + end_time_str + """,
 	"""+ (start_time_str if start_time_str else "") + """
-	group_id: {_eq: 3409},
+	group_id: {_eq: 3463},
 	status: {_in: ["open", "new", "normal"]}}
 	order_by: {end_time: asc},""" + limit_str + """
 	offset: 0) {
@@ -44,7 +44,7 @@ def get_events(args):
 	events = result["data"]["events"]
 
 	with open("response.json", "w") as f:
-		json.dump(events, f)
+		json.dump(events, f, indent=4, sort_keys=True)
 
 	for e in events:
 		for key in e:

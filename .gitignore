@@ -2,3 +2,7 @@ __pycache__
 blog
 env
 secrets.env
+venv/
+*.pyc
+__pycache__/
+.env
