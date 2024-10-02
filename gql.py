@@ -20,7 +20,7 @@ def get_events(args):
 	else:
 		query_url = f"https://prodnet.sola.day/api/event/list?group_id={group_id}"
 
-	print(graphql_query)
+	print(query_url)
 	response = requests.get(
 		query_url
 	)
