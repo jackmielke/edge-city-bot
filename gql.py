@@ -12,8 +12,10 @@ def get_events(args):
 	group_id = 3463
 	start_time_str = None
 	if args["start_time"]:
-		start_time_str = str(args["start_time"].date())
-		end_time_str = str(args["end_time"].date())
+		# start_time_str = str(args["start_time"].date())
+		# end_time_str = str(args["end_time"].date())
+		start_time_str = args["start_time"][0:10]
+		end_time_str = args["end_time"][0:10]
 		query_url = f"https://prodnet.sola.day/api/event/list?group_id={group_id}&start_date={start_time_str}&end_date={end_time_str}"
 	else:
 		query_url = f"https://prodnet.sola.day/api/event/list?group_id={group_id}"
