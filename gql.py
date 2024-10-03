@@ -9,35 +9,20 @@ pdt = timezone('US/Pacific')
 
 def get_events(args):
 	print(args)
+	group_id = 3463
 	start_time_str = None
 	if args["start_time"]:
-		start_time_str = "start_time: {_lte: \"" + args["start_time"] + "\"}"
-	end_time_str = "end_time: {_gte: \"" + (args["end_time"] if "end_time" in args else datetime.now().isoformat()) + "\"}"
-	limit = 20
-	if "limit" in args and args["limit"] < 20 and args["limit"] > 0:
-		limit = args["limit"]
-	limit_str = f"limit: {limit}"
-	graphql_url = "https://graph.sola.day/v1/graphql"
-	graphql_query = """query MyQuery  {
-	events (where: {""" + end_time_str + """,
-	"""+ (start_time_str if start_time_str else "") + """
-	group_id: {_eq: 3463},
-	status: {_in: ["open", "new", "normal"]}}
-	order_by: {end_time: asc},""" + limit_str + """
-	offset: 0) {
-	formatted_address
-	start_time
-	title
-	end_time
-	content
-	location
-	}
-	}"""
+		# start_time_str = str(args["start_time"].date())
+		# end_time_str = str(args["end_time"].date())
+		start_time_str = args["start_time"][0:10]
+		end_time_str = args["end_time"][0:10]
+		query_url = f"https://prodnet.sola.day/api/event/list?group_id={group_id}&start_date={start_time_str}&end_date={end_time_str}"
+	else:
+		query_url = f"https://prodnet.sola.day/api/event/list?group_id={group_id}"
 
-	print(graphql_query)
-	response = requests.post(
-		graphql_url,
-		json={'query': graphql_query}
+	print(query_url)
+	response = requests.get(
+		query_url
 	)
 
 	result = response.json()
