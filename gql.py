@@ -26,7 +26,7 @@ def get_events(args):
 	)
 
 	result = response.json()
-	events = result["data"]["events"]
+	events = result["events"]
 
 	with open("response.json", "w") as f:
 		json.dump(events, f, indent=4, sort_keys=True)
