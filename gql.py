@@ -6,6 +6,7 @@ import requests
 
 utc = timezone("UTC")
 pdt = timezone('US/Pacific')
+bkk = timezone('Asia/Bangkok')
 
 def get_events(args):
 	print(args)
@@ -36,7 +37,7 @@ def get_events(args):
 			try:
 				naive_dt = parser.isoparse(e[key])
 				utc_dt = utc.localize(naive_dt)
-				e[key] = utc_dt.astimezone(pdt).strftime("%Y-%m-%d %H:%M")
+				e[key] = utc_dt.astimezone(bkk).strftime("%Y-%m-%d %H:%M")
 			except ValueError:
 				pass
 			except TypeError:
